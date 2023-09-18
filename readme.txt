@@ -1,1 +1,1 @@
-Khanh Bui kdbui@ualberta.ca
+Khanh Bui 1972539

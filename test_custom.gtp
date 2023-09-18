@@ -14,8 +14,6 @@ gogui-test test_vertical
 play B D6
 play W C6
 play B B6
-play W C4
-play B C3
 gogui-check_neighbors B6
 gogui-test --------------------------------------
 
