@@ -1,0 +1,104 @@
+    def gogui_rules_legal_moves_cmd(self, optional_param: str = None) -> None:
+        """ Implement this function for Assignment 1 """
+        self.optional_param = optional_param
+        try:
+            # Checking part
+            # Check for color
+            board_color = "b" 
+            gtp_moves = []
+            # Check if game is over
+            game_result = self.gogui_rules_final_result_cmd([])
+            if game_result != "unknown":
+                return []
+
+            color = color_to_int(board_color)          
+            legal_moves = GoBoardUtil.generate_legal_moves(self.board, color)
+            
+            # Format the moves
+            for move in legal_moves:
+                coords = point_to_coord(move, self.board.size)
+                gtp_moves.append(format_point(coords))
+
+            # Sort the moves for consistency
+            sorted_moves = " ".join(sorted(gtp_moves))
+            
+            self.respond(sorted_moves)
+        except Exception as e:
+            self.respond("Error: {}".format(str(e)))
+
+    # basically a copy of the above function but return
+    def gogui_rules_legal_moves_cmd_return(self, optional_param: str = None) -> None:
+        """ Implement this function for Assignment 1 """
+        self.optional_param = optional_param
+        try:
+            # Checking part
+            # Check for color
+            board_color = "b"  # You might want to modify this line
+            if board_color not in ('b', 'w'):
+                self.error("Invalid color. Use 'b' or 'w'.")
+                return
+            gtp_moves = []
+            # Check if game is over
+            game_result = self.gogui_rules_final_result_cmd([])
+            if game_result != "unknown":
+                return gtp_moves
+
+            color = color_to_int(board_color)          
+            legal_moves = GoBoardUtil.generate_legal_moves(self.board, color)
+            
+            # Format the moves
+            for move in legal_moves:
+                coords = point_to_coord(move, self.board.size)
+                gtp_moves.append(format_point(coords))
+            
+            return gtp_moves
+        except Exception as e:
+            self.respond("Error: {}".format(str(e)))
+
+
+
+    def play_cmd(self, args: List[str]) -> None:
+        """
+        Modify this function for Assignment 1.
+        Play a move args[1] for the given color args[0] in {'b', 'w'}.
+        """
+        try:
+            board_color = args[0].lower()
+            board_move = args[1]
+            color = color_to_int(board_color)
+
+            # Get the list of legal moves for the current player
+            
+            legal_moves = self.gogui_rules_legal_moves_cmd_return("something")
+            # self.respond(str(legal_moves))
+            # self.respond("debug1")
+            
+            if args[1].lower() == "pass":
+                self.board.play_move(PASS, color)
+                self.board.current_player = opponent(color)
+                self.respond()
+                return
+            # self.respond("debug2")
+            # color check
+            if self.board.current_player != color:
+                self.respond("Illegal Move: {}".format(board_color))
+            #     return
+            # self.respond("debug3")
+            # occupication and also coordiante check
+            if board_move not in legal_moves:
+                self.respond("Illegal Move: {}".format(board_move))
+                return
+            # self.respond("debug4")
+            coord = move_to_coord(args[1], self.board.size)
+            move = coord_to_point(coord[0], coord[1], self.board.size)
+
+            if not self.board.play_move(move, color):
+                self.respond("Illegal Move: {}".format(board_move))
+                return
+            else:
+                self.debug_msg(
+                    "Move: {}\nBoard:\n{}\n".format(board_move, self.board2d())
+                )
+            self.respond()
+        except Exception as e:
+            self.respond("Error: {}".format(str(e)))

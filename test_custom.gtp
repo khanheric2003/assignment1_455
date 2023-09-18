@@ -1,0 +1,34 @@
+
+gogui-test test_horizontal
+play B C6
+play W C5
+play B E6
+play W C4
+play B C3
+gogui-check_neighbors C6
+gogui-test --------------------------------------
+
+
+clear_board
+gogui-test test_vertical
+play B D6
+play W C6
+play B B6
+play W C4
+play B C3
+gogui-check_neighbors B6
+gogui-test --------------------------------------
+
+
+clear_board
+gogui-test test_diagonal
+play B D6
+play W C5
+play B B4
+play W C4
+play B C3
+gogui-check_neighbors B6
+gogui-test -------------
+
+
+#?[1]
