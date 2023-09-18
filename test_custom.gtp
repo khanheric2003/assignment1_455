@@ -25,10 +25,7 @@ gogui-test test_diagonal
 play B D6
 play W C5
 play B B4
-play W C4
-play B C3
-gogui-check_neighbors B6
+gogui-check_neighbors B4
 gogui-test -------------
-
 
 #?[1]

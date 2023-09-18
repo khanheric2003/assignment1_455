@@ -45,6 +45,9 @@ class GtpConnection:
         self._debug_mode: bool = debug_mode
         self.go_engine = go_engine
         self.board: GoBoard = board
+
+        self.capture: List = [0, 0]
+
         self.commands: Dict[str, Callable[[List[str]], None]] = {
             "protocol_version": self.protocol_version_cmd,
             "quit": self.quit_cmd,
@@ -61,7 +64,7 @@ class GtpConnection:
             "legal_moves": self.legal_moves_cmd,
             "gogui-rules_legal_moves": self.gogui_rules_legal_moves_cmd,
             "gogui-rules_final_result": self.gogui_rules_final_result_cmd,
-            "gogui-rules_captured_count": self.gogui_rules_captured_count_cmd,
+            # "gogui-rules_captured_count": self.gogui_rules_captured_count_cmd,
             "gogui-rules_game_id": self.gogui_rules_game_id_cmd,
             "gogui-rules_board_size": self.gogui_rules_board_size_cmd,
             "gogui-rules_side_to_move": self.gogui_rules_side_to_move_cmd,
@@ -309,7 +312,7 @@ class GtpConnection:
             self.respond("draw")
             return "draw"
 
-        self.respond("unknown")
+        # self.respond("unknown")
         return "unknown"
 
     def gogui_test_cmd(self, args: str) -> None:
@@ -450,6 +453,8 @@ class GtpConnection:
 
     def gogui_check_neighbors_cmd(self, args: List[str]):
 
+        # self.board[point] = EMPTY
+
         # vertical
         # horizontal
         # diagonal_bt
@@ -499,7 +504,6 @@ class GtpConnection:
                         point += 1
                     # gain color already
                     elif neighbor_color == player_color:
-                        self.respond("passed player color")
                         is_captured = True
                         break
                     else:
@@ -540,7 +544,7 @@ class GtpConnection:
                         point += 1
                     # gain color already
                     elif neighbor_color == player_color:
-                        self.respond("passed player color")
+
                         is_captured = True
                         break
                     else:
@@ -580,7 +584,7 @@ class GtpConnection:
                         point += 1
                     # gain color already
                     elif neighbor_color == player_color:
-                        self.respond("passed player color")
+
                         is_captured = True
                         break
                     else:
@@ -620,7 +624,6 @@ class GtpConnection:
                         point += 1
                     # gain color already
                     elif neighbor_color == player_color:
-                        self.respond("passed player color")
                         is_captured = True
                         break
                     else:
@@ -640,6 +643,9 @@ class GtpConnection:
             y = move_coord[1]
             # if manually change x and y change here
             current_coord = (x+1, y+1)
+
+            self.respond("current coor" + current_coord)
+
             current_point = coord_to_point(
                 current_coord[0], current_coord[1], size)
 
@@ -662,7 +668,7 @@ class GtpConnection:
                         point += 1
                     # gain color already
                     elif neighbor_color == player_color:
-                        self.respond("passed player color")
+                        self.respond("passed diagonal top right")
                         is_captured = True
                         break
                     else:
@@ -677,129 +683,130 @@ class GtpConnection:
             self.respond("reach top right border")
 
             # diagonal left bottom
-        try:
-            x = move_coord[0]
-            y = move_coord[1]
-            # if manually change x and y change here
-            current_coord = (x-1, y-1)
-            current_point = coord_to_point(
-                current_coord[0], current_coord[1], size)
+        # try:
+        #     x = move_coord[0]
+        #     y = move_coord[1]
+        #     # if manually change x and y change here
+        #     current_coord = (x-1, y-1)
+        #     current_point = coord_to_point(
+        #         current_coord[0], current_coord[1], size)
 
-            neighbor_color = self.board.get_color(
-                current_point)  # gain color already
+        #     neighbor_color = self.board.get_color(
+        #         current_point)  # gain color already
 
-            if neighbor_color != 3 or neighbor_color != 0:  # BORDER = 3, empty = 0
-                point = 0
-                while x > 1 and y < self.board.size:
-                    y -= 1
-                    x -= 1
-                    # if manually change x and y change here
-                    current_coord = (x, y)
-                    current_point = coord_to_point(
-                        current_coord[0], current_coord[1], size)
-                    neighbor_color = self.board.get_color(
-                        current_point)  # gain color already
+        #     if neighbor_color != 3 or neighbor_color != 0:  # BORDER = 3, empty = 0
+        #         point = 0
+        #         while x > 1 and y < self.board.size:
+        #             y -= 1
+        #             x -= 1
+        #             # if manually change x and y change here
+        #             current_coord = (x, y)
+        #             current_point = coord_to_point(
+        #                 current_coord[0], current_coord[1], size)
+        #             neighbor_color = self.board.get_color(
+        #                 current_point)  # gain color already
 
-                    if neighbor_color == opponent_color:
-                        point += 1
-                    # gain color already
-                    elif neighbor_color == player_color:
-                        self.respond("passed player color")
-                        is_captured = True
-                        break
-                    else:
-                        break
+        #             if neighbor_color == opponent_color:
+        #                 point += 1
+        #             # gain color already
+        #             elif neighbor_color == player_color:
+        #                 self.respond("passed  diagonal left bottom")
+        #                 is_captured = True
+        #                 break
+        #             else:
+        #                 break
 
-                if is_captured == True:
-                    captured_point += point
-            else:
-                self.respond("no bottom left diagonal neighbor")
-        except Exception as e:
-            # if error = reach bottom border
-            self.respond("reach bottom left border")
+        #         if is_captured == True:
+        #             captured_point += point
+        #     else:
+        #         self.respond("no bottom left diagonal neighbor")
+        # except Exception as e:
+        #     # if error = reach bottom border
+        #     self.respond("reach bottom left border")
 
-            # diagonal top left
-        try:
-            x = move_coord[0]
-            y = move_coord[1]
-            # if manually change x and y change here
-            current_coord = (x-1, y+1)
-            current_point = coord_to_point(
-                current_coord[0], current_coord[1], size)
+        #     # diagonal top left
+        # try:
+        #     x = move_coord[0]
+        #     y = move_coord[1]
+        #     # if manually change x and y change here
+        #     current_coord = (x-1, y+1)
+        #     current_point = coord_to_point(
+        #         current_coord[0], current_coord[1], size)
 
-            neighbor_color = self.board.get_color(
-                current_point)  # gain color already
+        #     neighbor_color = self.board.get_color(
+        #         current_point)  # gain color already
 
-            if neighbor_color != 3 or neighbor_color != 0:  # BORDER = 3, empty = 0
-                point = 0
-                while x > 1 and y < self.board.size:
-                    y += 1
-                    x -= 1
-                    # if manually change x and y change here
-                    current_coord = (x, y)
-                    current_point = coord_to_point(
-                        current_coord[0], current_coord[1], size)
-                    neighbor_color = self.board.get_color(
-                        current_point)  # gain color already
+        #     if neighbor_color != 3 or neighbor_color != 0:  # BORDER = 3, empty = 0
+        #         point = 0
+        #         while x > 1 and y < self.board.size:
+        #             y += 1
+        #             x -= 1
+        #             # if manually change x and y change here
+        #             current_coord = (x, y)
+        #             current_point = coord_to_point(
+        #                 current_coord[0], current_coord[1], size)
+        #             neighbor_color = self.board.get_color(
+        #                 current_point)  # gain color already
 
-                    if neighbor_color == opponent_color:
-                        point += 1
-                    # gain color already
-                    elif neighbor_color == player_color:
-                        self.respond("passed player color")
-                        is_captured = True
-                        break
-                    else:
-                        break
+        #             if neighbor_color == opponent_color:
+        #                 point += 1
+        #             # gain color already
+        #             elif neighbor_color == player_color:
+        #                 self.respond("passed diagonal top left")
+        #                 is_captured = True
+        #                 break
+        #             else:
+        #                 break
 
-                if is_captured == True:
-                    captured_point += point
-            else:
-                self.respond("no bottom left diagonal neighbor")
-        except Exception as e:
-            # if error = reach bottom border
-            self.respond("reach bottom left border")
-            # diagonal top left
-        try:
-            x = move_coord[0]
-            y = move_coord[1]
-            # if manually change x and y change here
-            current_coord = (x+1, y-1)
-            current_point = coord_to_point(
-                current_coord[0], current_coord[1], size)
+        #         if is_captured == True:
+        #             captured_point += point
+        #     else:
+        #         self.respond("no bottom left diagonal neighbor")
+        # except Exception as e:
+        #     # if error = reach bottom border
+        #     self.respond("reach bottom left border")
+        #     # diagonal bottom right
+        # try:
+        #     x = move_coord[0]
+        #     y = move_coord[1]
+        #     # if manually change x and y change here
+        #     current_coord = (x+1, y-1)
+        #     current_point = coord_to_point(
+        #         current_coord[0], current_coord[1], size)
 
-            neighbor_color = self.board.get_color(
-                current_point)  # gain color already
+        #     neighbor_color = self.board.get_color(
+        #         current_point)  # gain color already
 
-            if neighbor_color != 3 or neighbor_color != 0:  # BORDER = 3, empty = 0
-                point = 0
-                while x > 1 and y < self.board.size:
-                    y -= 1
-                    x += 1
-                    # if manually change x and y change here
-                    current_coord = (x, y)
-                    current_point = coord_to_point(
-                        current_coord[0], current_coord[1], size)
-                    neighbor_color = self.board.get_color(
-                        current_point)  # gain color already
+        #     if neighbor_color != 3 or neighbor_color != 0:  # BORDER = 3, empty = 0
+        #         point = 0
+        #         while x > 1 and y < self.board.size:
+        #             y -= 1
+        #             x += 1
+        #             # if manually change x and y change here
+        #             current_coord = (x, y)
+        #             current_point = coord_to_point(
+        #                 current_coord[0], current_coord[1], size)
+        #             neighbor_color = self.board.get_color(
+        #                 current_point)  # gain color already
 
-                    if neighbor_color == opponent_color:
-                        point += 1
-                    # gain color already
-                    elif neighbor_color == player_color:
-                        self.respond("passed player color")
-                        is_captured = True
-                        break
-                    else:
-                        break
+        #             if neighbor_color == opponent_color:
+        #                 point += 1
+        #             # gain color already
+        #             elif neighbor_color == player_color:
+        #                 self.respond(
+        #                     "passed diagonal bottom right")
+        #                 is_captured = True
+        #                 break
+        #             else:
+        #                 break
 
-                if is_captured == True:
-                    captured_point += point
-            else:
-                self.respond("no bottom left diagonal neighbor")
-        except Exception as e:
-            # if error = reach bottom border
-            self.respond("reach bottom left border")
+        #         if is_captured == True:
+        #             captured_point += point
+        #     else:
+        #         self.respond("no bottom left diagonal neighbor")
+        # except Exception as e:
+        #     # if error = reach bottom border
+        #     self.respond("reach bottom left border")
 
         self.respond("captured_point: " + str(captured_point))
         return captured_point
@@ -933,14 +940,16 @@ class GtpConnection:
     def gogui_captured_check_cmd(self, args: List[str]) -> None:
         self.respond()
 
-    def gogui_rules_captured_count_cmd(self, args: List[str]) -> None:
-        """ 
-        Modify this function for Assignment 1.
-        Respond with the score for white, an space, and the score for black.
-        """
-        self.respond("0 0")
 
-    """
+# def gogui_rules_captured_count_cmd(self, args: List[str]) -> None:
+#     """
+#     Modify this function for Assignment 1.
+#     Respond with the score for white, an space, and the score for black.
+#     """
+#     self.respond(str(self.capture[0]) + " " + str(self.capture[0]))
+
+
+"""
     ==========================================================================
     Assignment 1 - game-specific commands end here
     ==========================================================================

@@ -42,6 +42,8 @@ For many more utility functions, see the GoBoardUtil class in board_util.py.
 The board is stored as a one-dimensional array of GO_POINT in self.board.
 See coord_to_point for explanations of the array encoding.
 """
+
+
 class GoBoard(object):
     def __init__(self, size: int) -> None:
         """
@@ -62,7 +64,8 @@ class GoBoard(object):
         self.last2_move: GO_POINT = NO_POINT
         self.current_player: GO_COLOR = BLACK
         self.maxpoint: int = board_array_size(size)
-        self.board: np.ndarray[GO_POINT] = np.full(self.maxpoint, BORDER, dtype=GO_POINT)
+        self.board: np.ndarray[GO_POINT] = np.full(
+            self.maxpoint, BORDER, dtype=GO_POINT)
         self._initialize_empty_points(self.board)
 
     def copy(self) -> 'GoBoard':
@@ -94,7 +97,7 @@ class GoBoard(object):
         assert is_black_white(color)
         if point == PASS:
             return True
-        # Could just return False for out-of-bounds, 
+        # Could just return False for out-of-bounds,
         # but it is better to know if this is called with an illegal point
         assert self.pt(1, 1) <= point <= self.pt(self.size, self.size)
         assert is_black_white_empty(self.board[point])
@@ -118,8 +121,8 @@ class GoBoard(object):
 
     def end_of_game(self) -> bool:
         return self.last_move == PASS \
-           and self.last2_move == PASS
-           
+            and self.last2_move == PASS
+
     def get_empty_points(self) -> np.ndarray:
         """
         Return:
@@ -141,7 +144,7 @@ class GoBoard(object):
         """
         for row in range(1, self.size + 1):
             start: int = self.row_start(row)
-            board_array[start : start + self.size] = EMPTY
+            board_array[start: start + self.size] = EMPTY
 
     def is_eye(self, point: GO_POINT, color: GO_COLOR) -> bool:
         """
@@ -209,9 +212,6 @@ class GoBoard(object):
                     marker[nb] = True
                     pointstack.append(nb)
         return marker
-    
-
-
 
     def _detect_and_process_capture(self, nb_point: GO_POINT) -> GO_POINT:
         """
@@ -238,31 +238,16 @@ class GoBoard(object):
         if not self._is_legal_check_simple_cases(point, color):
             return False
         # Special cases
-        if point == PASS:
-            self.ko_recapture = NO_POINT
-            self.current_player = opponent(color)
-            self.last2_move = self.last_move
-            self.last_move = point
-            return True
+        # if point == PASS:
+        #     self.ko_recapture = NO_POINT
+        #     self.current_player = opponent(color)
+        #     self.last2_move = self.last_move
+        #     self.last_move = point
+        #     return True
 
         # General case: deal with captures, suicide, and next ko point
-        opp_color = opponent(color)
-        in_enemy_eye = self._is_surrounded(point, opp_color)
+
         self.board[point] = color
-        single_captures = []
-        neighbors = self._neighbors(point)
-        for nb in neighbors:
-            if self.board[nb] == opp_color:
-                single_capture = self._detect_and_process_capture(nb)
-                if single_capture != NO_POINT:
-                    single_captures.append(single_capture)
-        block = self._block_of(point)
-        if not self._has_liberty(block):  # undo suicide move
-            self.board[point] = EMPTY
-            return False
-        self.ko_recapture = NO_POINT
-        if in_enemy_eye and len(single_captures) == 1:
-            self.ko_recapture = single_captures[0]
         self.current_player = opponent(color)
         self.last2_move = self.last_move
         self.last_move = point
